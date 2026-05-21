@@ -156,6 +156,7 @@ def test_messages_within_context_window_passes_model(monkeypatch):
 @pytest.mark.parametrize(
     "model,expected",
     [
+        ("chat-latest", False),
         ("gpt-5-chat-latest", False),
         ("gpt-5.1-chat-latest", False),
         ("gpt-5.2-chat-latest", False),
@@ -183,6 +184,7 @@ def test_is_reasoning_heuristics(model, expected):
 @pytest.mark.parametrize(
     "model,is_reasoning,temperature,timeout,user",
     [
+        ("chat-latest", False, 0.6, 10, "U111"),
         (GPT_4O_MODEL, False, 0.7, 12, "U123"),
         ("o3", True, 1.0, 5, "U234"),
         (GPT_5_SEARCH_API_MODEL, False, 0.5, 8, "U345"),
@@ -248,7 +250,10 @@ def test_sync_tokens_and_sampling_behavior(
         ):
             assert k not in kwargs
     else:
-        if kwargs.get("model", "").lower().startswith("gpt-5"):
+        if kwargs.get("model") == "chat-latest":
+            assert token_key == "max_completion_tokens"
+            assert kwargs.get("max_completion_tokens") == MAX_TOKENS
+        elif kwargs.get("model", "").lower().startswith("gpt-5"):
             assert token_key == "max_completion_tokens"
             assert kwargs.get("max_completion_tokens") == MAX_TOKENS
         else:
@@ -266,7 +271,9 @@ def test_sync_tokens_and_sampling_behavior(
             if k in kwargs
         }
         ml = kwargs.get("model", "").lower()
-        if ml.startswith(("gpt-5.1", "gpt-5.2", "gpt-5.3")):
+        if kwargs.get("model") == "chat-latest":
+            assert sampling_keys == set()
+        elif ml.startswith(("gpt-5.1", "gpt-5.2", "gpt-5.3")):
             assert sampling_keys == set()
         elif ml.startswith("gpt-5"):
             assert sampling_keys == {

@@ -24,11 +24,26 @@ def reset_reply_cache():
     slack_ops._CACHE._last_sent.clear()
 
 
+def make_context(*, model, bot_scopes=("files:read",)):
+    context = MagicMock()
+    context.authorize_result.bot_scopes = list(bot_scopes)
+    context.get.side_effect = lambda key, default=None: {"OPENAI_MODEL": model}.get(key, default)
+    return context
+
+
 def make_client(chat_update_side_effect=None):
     client = MagicMock()
     client.chat_update = MagicMock(side_effect=chat_update_side_effect)
     client.chat_postMessage = MagicMock()
     return client
+
+
+def test_can_send_image_url_to_openai_allows_chat_latest(monkeypatch):
+    monkeypatch.setattr(slack_ops, "IMAGE_FILE_ACCESS_ENABLED", True)
+
+    assert slack_ops.can_send_image_url_to_openai(
+        make_context(model="chat-latest")
+    ) is True
 
 
 def test_final_short_updates_in_place():

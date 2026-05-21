@@ -29,3 +29,11 @@ def test_sampling_and_token_budget_for_gpt_5_5():
 
     assert token_kwargs == {"max_completion_tokens": 1024}
     assert sampling == {}
+
+
+def test_sampling_and_token_budget_for_chat_latest():
+    token_kwargs = api_utils.token_budget_kwarg("chat-latest", 1024)
+    sampling = api_utils.sampling_kwargs("chat-latest", 0.75)
+
+    assert token_kwargs == {"max_completion_tokens": 1024}
+    assert sampling == {}

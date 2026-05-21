@@ -27,6 +27,7 @@ GPT_4_1_MINI_MODEL = "gpt-4.1-mini"
 GPT_4_1_MINI_2025_04_14_MODEL = "gpt-4.1-mini-2025-04-14"
 GPT_4_1_NANO_MODEL = "gpt-4.1-nano"
 GPT_4_1_NANO_2025_04_14_MODEL = "gpt-4.1-nano-2025-04-14"
+CHAT_LATEST_MODEL = "chat-latest"
 GPT_5_CHAT_LATEST_MODEL = "gpt-5-chat-latest"
 GPT_5_SEARCH_API_MODEL = "gpt-5-search-api"
 GPT_5_SEARCH_API_2025_10_14_MODEL = "gpt-5-search-api-2025-10-14"
@@ -90,6 +91,8 @@ MODEL_TOKENS = {
     GPT_4O_2024_05_13_MODEL: (3, 1),
     # GPT-4o mini
     GPT_4O_MINI_2024_07_18_MODEL: (3, 1),
+    # ChatGPT latest
+    CHAT_LATEST_MODEL: (3, 1),
     # GPT-5 chat latest
     GPT_5_CHAT_LATEST_MODEL: (3, 1),
     GPT_5_1_CHAT_LATEST_MODEL: (3, 1),
@@ -162,6 +165,8 @@ MODEL_CONTEXT_LENGTHS = {
     GPT_4_1_2025_04_14_MODEL: 1048576,
     GPT_4_1_MINI_2025_04_14_MODEL: 1048576,
     GPT_4_1_NANO_2025_04_14_MODEL: 1048576,
+    # ChatGPT latest
+    CHAT_LATEST_MODEL: 400000,
     # GPT-5 chat latest
     GPT_5_CHAT_LATEST_MODEL: 128000,
     GPT_5_1_CHAT_LATEST_MODEL: 128000,
