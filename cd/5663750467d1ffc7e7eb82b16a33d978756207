@@ -1,0 +1,33 @@
+tests/slack_ui_test.py
+  s_ff17af6ec6989c::t_7540d66833df38 10-12,37-40
+tests/openai_ops_test.py
+  s_ff17af6ec6989c::t_7540d66833df38 13-16,176-179,205-208
+tests/openai_api_utils_test.py
+  s_ff17af6ec6989c::t_7540d66833df38 34-42
+tests/model_constants_test.py
+  s_ff17af6ec6989c::t_86b99059979667 81
+  s_ff17af6ec6989c::t_702b3cfb0fd481 70
+  s_ff17af6ec6989c::t_2819c930ab2c64 74-75
+  s_ff17af6ec6989c::t_7540d66833df38 22-25,57-69,71-73,76-80
+app/slack_ui.py
+  s_ff17af6ec6989c::t_7540d66833df38 16-18,456-467
+app/openai_constants.py
+  s_ff17af6ec6989c::t_2819c930ab2c64 196-198
+  s_ff17af6ec6989c::t_7540d66833df38 48-51,116-119,147,195
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.12",
+  "base_commit_sha": "cd5663750467d1ffc7e7eb82b16a33d978756207",
+  "prompts": {},
+  "sessions": {
+    "s_ff17af6ec6989c": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f56cf-cafa-7983-8616-9d6a64d77586",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": null
+    }
+  }
+}
