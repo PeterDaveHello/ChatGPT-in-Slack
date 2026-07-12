@@ -7,6 +7,9 @@ from app.openai_constants import (
     GPT_5_4_MINI_MODEL,
     GPT_5_4_NANO_MODEL,
     GPT_5_5_MODEL,
+    GPT_5_6_SOL_MODEL,
+    GPT_5_6_TERRA_MODEL,
+    GPT_5_6_LUNA_MODEL,
     CHAT_LATEST_MODEL,
 )
 
@@ -31,7 +34,10 @@ def test_build_configure_modal_includes_new_models():
     options = modal["blocks"][1]["element"]["options"]
     values = [option["value"] for option in options]
 
-    assert values[:8] == [
+    assert values[:11] == [
+        GPT_5_6_SOL_MODEL,
+        GPT_5_6_TERRA_MODEL,
+        GPT_5_6_LUNA_MODEL,
         GPT_5_5_MODEL,
         CHAT_LATEST_MODEL,
         GPT_5_4_MODEL,

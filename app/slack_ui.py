@@ -13,6 +13,9 @@ from app.openai_constants import (
     GPT_5_4_MINI_MODEL,
     GPT_5_4_NANO_MODEL,
     GPT_5_5_MODEL,
+    GPT_5_6_SOL_MODEL,
+    GPT_5_6_TERRA_MODEL,
+    GPT_5_6_LUNA_MODEL,
     CHAT_LATEST_MODEL,
     GPT_5_2_CHAT_LATEST_MODEL,
     GPT_5_2_MODEL,
@@ -450,6 +453,18 @@ def build_configure_modal(context: BoltContext) -> dict:
         )
 
     options = [
+        {
+            "text": {"type": "plain_text", "text": "GPT-5.6 Sol"},
+            "value": GPT_5_6_SOL_MODEL,
+        },
+        {
+            "text": {"type": "plain_text", "text": "GPT-5.6 Terra"},
+            "value": GPT_5_6_TERRA_MODEL,
+        },
+        {
+            "text": {"type": "plain_text", "text": "GPT-5.6 Luna"},
+            "value": GPT_5_6_LUNA_MODEL,
+        },
         {
             "text": {"type": "plain_text", "text": "GPT-5.5"},
             "value": GPT_5_5_MODEL,
