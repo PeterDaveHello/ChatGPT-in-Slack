@@ -4,6 +4,7 @@ from app.openai_constants import (
     MODEL_FALLBACKS,
     MODEL_TOKENS,
     MODEL_CONTEXT_LENGTHS,
+    CHAT_LATEST_MODEL,
     GPT_4_MODEL,
     GPT_4_0613_MODEL,
     GPT_5_1_MODEL,
@@ -48,6 +49,20 @@ def test_gpt_5_4_nano_alias_resolution():
 def test_gpt_5_5_alias_resolution():
     """Ensures the GPT-5.5 alias resolves to the dated release."""
     assert resolve_model_alias(GPT_5_5_MODEL) == GPT_5_5_2026_04_23_MODEL
+
+def test_chat_latest_model_support():
+    """Ensures chat-latest has direct token and context definitions."""
+    from app.openai_ops import calculate_num_tokens, context_length
+
+    assert resolve_model_alias(CHAT_LATEST_MODEL) == CHAT_LATEST_MODEL
+    assert CHAT_LATEST_MODEL not in MODEL_FALLBACKS
+    assert MODEL_TOKENS[CHAT_LATEST_MODEL] == (3, 1)
+    assert MODEL_CONTEXT_LENGTHS[CHAT_LATEST_MODEL] == 400000
+    assert context_length(CHAT_LATEST_MODEL) == 400000
+    assert calculate_num_tokens(
+        messages=[{"role": "user", "content": "hello"}],
+        model=CHAT_LATEST_MODEL,
+    ) > 0
 
 def test_unregistered_model_fails():
     """Tests that resolving an unregistered model raises NotImplementedError."""

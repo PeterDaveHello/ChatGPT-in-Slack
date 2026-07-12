@@ -39,7 +39,7 @@ def normalize_base_url(value: Optional[str]) -> Optional[str]:
 def token_budget_kwarg(model: Optional[str], budget: int) -> Dict[str, int]:
     """Returns the correct token budget kwarg for the given model."""
     should_use_completion_tokens = (
-        model and model.lower().startswith("gpt-5")
+        model == "chat-latest" or (model and model.lower().startswith("gpt-5"))
     ) or is_reasoning_model(model)
 
     return (
@@ -56,7 +56,7 @@ def sampling_kwargs(
     ml = model.lower() if model else ""
     if is_reasoning_model(model) or is_search_model(model):
         return {}
-    if ml.startswith(("gpt-5.1", "gpt-5.2", "gpt-5.3")):
+    if model == "chat-latest" or ml.startswith(("gpt-5.1", "gpt-5.2", "gpt-5.3")):
         return {}
     return {
         "temperature": temperature,
