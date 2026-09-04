@@ -164,6 +164,8 @@ def test_messages_within_context_window_passes_model(monkeypatch):
         ("gpt-5.4", True),
         ("gpt-5.4-mini", True),
         ("gpt-5.4-nano", True),
+        ("gpt-6-astra", True),
+        ("GPT-6-ASTRA", True),
         ("gpt-5.5", True),
         ("gpt-5.5-2026-04-23", True),
         (GPT_5_6_MODEL, True),
@@ -194,6 +196,7 @@ def test_is_reasoning_heuristics(model, expected):
         ("gpt-5.2-chat-latest", False, 0.55, 11, "U678"),
         (GPT_5_3_CHAT_LATEST_MODEL, False, 0.55, 11, "U789"),
         (GPT_5_4_MODEL, True, 0.55, 11, "U890"),
+        ("gpt-6-astra", True, 0.55, 11, "U903"),
         (GPT_5_5_MODEL, True, 0.55, 11, "U895"),
         (GPT_5_6_MODEL, True, 0.55, 11, "U896"),
         (GPT_5_6_SOL_MODEL, True, 0.55, 11, "U897"),
@@ -547,3 +550,30 @@ def test_function_call_token_probe_uses_azure_deployment(monkeypatch):
         ops._prompt_tokens_used_by_function_call_cache = previous_cache
 
     assert [kwargs["model"] for kwargs in create_kwargs] == ["dep-xyz", "dep-xyz"]
+
+
+@pytest.mark.parametrize("api_type", ["openai", "azure"])
+def test_gpt_6_astra_stream_request(fake_clients, api_type):
+    ops.start_receiving_openai_response(
+        openai_api_key="k",
+        model="gpt-6-astra",
+        temperature=0.5,
+        messages=[{"role": "user", "content": "hi"}],
+        user="U345",
+        openai_api_type=api_type,
+        openai_api_base="https://example.openai.azure.com",
+        openai_deployment_id="astra-deployment" if api_type == "azure" else "",
+        openai_organization_id=None,
+        function_call_module_name=None,
+    )
+    kwargs = fake_clients["create_kwargs"]
+    assert kwargs["stream"] is True
+    assert kwargs["model"] == (
+        "astra-deployment" if api_type == "azure" else "gpt-6-astra"
+    )
+    assert kwargs["max_completion_tokens"] == MAX_TOKENS
+    assert (
+        not {"max_tokens", "temperature", "top_p", "logprobs", "functions"}
+        & kwargs.keys()
+    )
+    assert "reasoning_effort" not in kwargs

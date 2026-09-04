@@ -127,3 +127,14 @@ def test_model_coverage():
             assert resolved_model in MODEL_CONTEXT_LENGTHS
         except Exception as e:
             pytest.fail(f"Failed to resolve or find definitions for model alias {alias}: {e}")
+
+
+def test_gpt_6_astra_model_support():
+    from app.openai_constants import GPT_6_ASTRA_MODEL
+    from app.openai_ops import calculate_num_tokens, context_length
+
+    assert resolve_model_alias(GPT_6_ASTRA_MODEL) == GPT_6_ASTRA_MODEL
+    assert context_length(GPT_6_ASTRA_MODEL) == 272000
+    assert calculate_num_tokens(
+        messages=[{"role": "user", "content": "hello"}], model=GPT_6_ASTRA_MODEL
+    ) > 0

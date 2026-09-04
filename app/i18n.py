@@ -10,7 +10,7 @@ from .openai_api_utils import (
     sampling_kwargs,
     token_budget_kwarg,
 )
-from .openai_constants import GPT_5_6_LUNA_MODEL
+from .openai_constants import GPT_5_6_LUNA_MODEL, GPT_6_ASTRA_MODEL
 
 # All the supported languages for Slack app as of March 2023
 _locale_to_lang = {
@@ -90,11 +90,21 @@ def translate(*, openai_api_key: Optional[str], context: BoltContext, text: str)
     request_kwargs.update(
         token_budget_kwarg(TRANSLATION_MODEL, TRANSLATION_TOKEN_BUDGET)
     )
-    request_kwargs.update(reasoning_effort_kwargs(TRANSLATION_MODEL))
+    if (
+        context.get("OPENAI_API_TYPE") == "azure"
+        and context.get("OPENAI_DEPLOYMENT_ID")
+        and context.get("OPENAI_MODEL") == GPT_6_ASTRA_MODEL
+    ):
+        # Azure shares the chat deployment, and Astra cannot disable reasoning.
+        request_kwargs["reasoning_effort"] = "low"
+    else:
+        request_kwargs.update(reasoning_effort_kwargs(TRANSLATION_MODEL))
     request_kwargs.update(sampling_kwargs(TRANSLATION_MODEL, TRANSLATION_TEMPERATURE))
     response = client.chat.completions.create(
         **request_kwargs,
     )
     translated_text = response.model_dump()["choices"][0]["message"].get("content")
+    if not translated_text or not translated_text.strip():
+        return text
     _translation_result_cache[f"{lang}:{text}"] = translated_text
     return translated_text

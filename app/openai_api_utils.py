@@ -17,6 +17,7 @@ def is_reasoning_model(model: Optional[str]) -> bool:
         or ml.startswith("o3")
         or ml.startswith("o4")
         or ml.startswith("gpt-5")
+        or ml == "gpt-6-astra"
     )
 
 

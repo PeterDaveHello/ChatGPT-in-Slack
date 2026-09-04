@@ -130,6 +130,8 @@ pip install -r requirements.txt
 python main.py
 ```
 
+Select **GPT-6 Astra** in the model settings or set `OPENAI_MODEL=gpt-6-astra` to use it with an account that has model access. The app uses a 272K context budget, consistent with its GPT-5.6 models. Astra supports image input and streaming; its optional Function Calling integration uses the Responses API, so custom API endpoints must support that API as well. For an Azure Astra deployment, keep `OPENAI_MODEL` and the saved workspace model aligned with that deployment. Oversized tool conversations fail explicitly when older history cannot be removed without breaking the current tool round.
+
 ### Using .env for credential loading
 
 If you prefer using .env file to load env variables for local development, you can rename .env.example file to .env:

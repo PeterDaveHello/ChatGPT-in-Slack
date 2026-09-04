@@ -49,6 +49,7 @@ GPT_5_6_MODEL = "gpt-5.6"
 GPT_5_6_SOL_MODEL = "gpt-5.6-sol"
 GPT_5_6_TERRA_MODEL = "gpt-5.6-terra"
 GPT_5_6_LUNA_MODEL = "gpt-5.6-luna"
+GPT_6_ASTRA_MODEL = "gpt-6-astra"
 O3_MODEL = "o3"
 O4_MINI_MODEL = "o4-mini"
 GPT_5_2025_08_07_MODEL = "gpt-5-2025-08-07"
@@ -117,6 +118,8 @@ MODEL_TOKENS = {
     GPT_5_6_SOL_MODEL: (3, 1),
     GPT_5_6_TERRA_MODEL: (3, 1),
     GPT_5_6_LUNA_MODEL: (3, 1),
+    # GPT-6 Astra
+    GPT_6_ASTRA_MODEL: (3, 1),
     # Reasoning models (dated)
     O3_2025_04_16_MODEL: (3, 1),
     O4_MINI_2025_04_16_MODEL: (3, 1),
@@ -196,6 +199,8 @@ MODEL_CONTEXT_LENGTHS = {
     GPT_5_6_SOL_MODEL: 272000,
     GPT_5_6_TERRA_MODEL: 272000,
     GPT_5_6_LUNA_MODEL: 272000,
+    # Keep the standard-price input budget, as with GPT-5.6.
+    GPT_6_ASTRA_MODEL: 272000,
     # Reasoning models (dated)
     O3_2025_04_16_MODEL: 128000,
     O4_MINI_2025_04_16_MODEL: 128000,

@@ -108,7 +108,7 @@ def update_wip_message(
     messages: List[Dict[str, str]],
     user: str,
     is_final: bool = False,
-    root_thread_ts: str = None,
+    root_thread_ts: Optional[str] = None,
 ) -> SlackResponse:
     """Update or finalize the WIP Slack message.
 
@@ -371,7 +371,7 @@ def can_send_image_url_to_openai(context: BoltContext) -> bool:
     openai_model = context.get("OPENAI_MODEL")
     # More supported models will come. This logic will need to be updated then.
     can_send_image_url = openai_model is not None and (
-        openai_model == "chat-latest"
+        openai_model in ("chat-latest", "gpt-6-astra")
         or openai_model.startswith("gpt-4o")
         or openai_model.startswith("gpt-4.1")
         or openai_model.startswith("gpt-5")

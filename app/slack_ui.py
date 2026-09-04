@@ -2,8 +2,10 @@ import json
 from typing import Optional, List
 from slack_bolt import BoltContext
 from slack_sdk.errors import SlackApiError
+from app.env import DEFAULT_OPENAI_MODEL, OPENAI_MODEL
 from app.i18n import translate
 from app.openai_constants import (
+    resolve_model_alias,
     GPT_4O_MODEL,
     GPT_4O_MINI_MODEL,
     GPT_4_1_MODEL,
@@ -13,6 +15,7 @@ from app.openai_constants import (
     GPT_5_4_MINI_MODEL,
     GPT_5_4_NANO_MODEL,
     GPT_5_5_MODEL,
+    GPT_6_ASTRA_MODEL,
     GPT_5_6_SOL_MODEL,
     GPT_5_6_TERRA_MODEL,
     GPT_5_6_LUNA_MODEL,
@@ -437,7 +440,7 @@ def build_home_tab(
 
 def build_configure_modal(context: BoltContext) -> dict:
     already_set_api_key = context.get("OPENAI_API_KEY")
-    saved_model = context.get("OPENAI_MODEL")
+    saved_model = resolve_model_alias(context.get("OPENAI_MODEL") or OPENAI_MODEL)
     api_key_text = "Save your OpenAI API key:"
     submit = "Submit"
     cancel = "Cancel"
@@ -453,6 +456,10 @@ def build_configure_modal(context: BoltContext) -> dict:
         )
 
     options = [
+        {
+            "text": {"type": "plain_text", "text": "GPT-6 Astra"},
+            "value": GPT_6_ASTRA_MODEL,
+        },
         {
             "text": {"type": "plain_text", "text": "GPT-5.6 Sol"},
             "value": GPT_5_6_SOL_MODEL,
@@ -575,15 +582,18 @@ def build_configure_modal(context: BoltContext) -> dict:
                     "type": "static_select",
                     "action_id": "input",
                     "options": options,
-                    **(
-                        {
-                            "initial_option": next(
-                                (opt for opt in options if opt["value"] == saved_model),
-                                options[0],
-                            )
-                        }
-                        if already_set_api_key is not None
-                        else {"initial_option": options[0]}
+                    "initial_option": next(
+                        (
+                            opt
+                            for opt in options
+                            if resolve_model_alias(opt["value"])
+                            == saved_model
+                        ),
+                        next(
+                            opt
+                            for opt in options
+                            if opt["value"] == DEFAULT_OPENAI_MODEL
+                        ),
                     ),
                 },
             },

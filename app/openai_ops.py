@@ -3,16 +3,18 @@ import threading
 import time
 import re
 import json
-from typing import List, Dict, Tuple, Optional, Union
+from typing import List, Dict, Tuple, Optional, Union, Generator
 from importlib import import_module
 
 from openai import Stream
 from openai.types import Completion
+from openai.types.chat import ChatCompletionChunk
 import tiktoken
 
 from slack_bolt import BoltContext
 from slack_sdk.web import WebClient, SlackResponse
 
+from app.env import OPENAI_TIMEOUT_SECONDS
 from app.markdown_conversion import slack_to_markdown, markdown_to_slack
 from app.openai_api_utils import (
     build_openai_client,
@@ -25,12 +27,14 @@ from app.openai_api_utils import (
     token_budget_kwarg,
 )
 from app.openai_constants import (
+    GPT_6_ASTRA_MODEL,
     MAX_TOKENS,
     MODEL_TOKENS,
     MODEL_CONTEXT_LENGTHS,
     resolve_model_alias,
     DEFAULT_TOKEN_COUNT_MODEL,
 )
+from app.openai_responses_ops import response_tools, stream_function_responses
 from app.slack_ops import update_wip_message
 from app.slack_constants import REASONING_EMPTY_OUTPUT_HINT
 
@@ -149,7 +153,7 @@ def _create_chat_completion(
     stream: bool,
     timeout_seconds: Optional[int] = None,
     function_call_module_name: Optional[str] = None,
-) -> Union[Completion, Stream[Completion]]:
+) -> Union[Completion, Stream[Completion], Generator[ChatCompletionChunk, None, None]]:
     """Creates a chat completion with unified client/kwargs handling.
 
     Note: Public wrappers are responsible for passing only the parameters
@@ -166,6 +170,15 @@ def _create_chat_completion(
     # Guard against misuse: streaming calls should not pass timeout_seconds
     if stream and timeout_seconds is not None:
         raise ValueError("timeout_seconds must be None for streaming calls")
+
+    if model == GPT_6_ASTRA_MODEL and function_call_module_name is not None:
+        return stream_function_responses(
+            client=client,
+            model=request_model(model, openai_api_type, openai_deployment_id),
+            messages=messages,
+            user=user,
+            module=import_module(function_call_module_name),
+        )
 
     is_reasoning = _is_reasoning(model)
     is_search = _is_search_model(model)
@@ -245,7 +258,7 @@ def start_receiving_openai_response(
     openai_deployment_id: str,
     openai_organization_id: Optional[str],
     function_call_module_name: Optional[str],
-) -> Stream[Completion]:
+) -> Union[Stream[Completion], Generator[ChatCompletionChunk, None, None]]:
     return _create_chat_completion(
         openai_api_key=openai_api_key,
         model=model,
@@ -269,7 +282,7 @@ def consume_openai_stream_to_write_reply(
     context: BoltContext,
     user_id: str,
     messages: List[Dict[str, Union[str, Dict[str, str]]]],
-    stream: Stream[Completion],
+    stream: Union[Stream[Completion], Generator[ChatCompletionChunk, None, None]],
     timeout_seconds: int,
     translate_markdown: bool,
     root_thread_ts: Optional[str] = None,
@@ -554,6 +567,20 @@ def calculate_tokens_necessary_for_function_call(context: BoltContext) -> int:
     def _calculate_prompt_tokens(functions) -> int:
         client = create_openai_client(context)
         model = context.get("OPENAI_MODEL")
+        if model == GPT_6_ASTRA_MODEL:
+            return client.responses.create(
+                model=request_model(
+                    model,
+                    context.get("OPENAI_API_TYPE"),
+                    context.get("OPENAI_DEPLOYMENT_ID"),
+                ),
+                input=[{"role": "user", "content": "hello"}],
+                tools=response_tools(functions) if functions is not None else [],
+                max_output_tokens=FUNCTION_CALL_TOKEN_BUDGET,
+                reasoning={"effort": "low"},
+                timeout=OPENAI_TIMEOUT_SECONDS,
+                store=False,
+            ).usage.input_tokens
         token_kwarg = _token_budget_kwarg(model, FUNCTION_CALL_TOKEN_BUDGET)
         return client.chat.completions.create(
             model=request_model(
